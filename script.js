@@ -216,6 +216,7 @@ class Character extends Entity {
         else if (isMoving) this.el.classList.add('running');
 
         if (keys.w && (keys.a || keys.d)) this.el.classList.add('aim-up-forward');
+        else if (keys.s && !this.grounded && (keys.a || keys.d)) this.el.classList.add('aim-down-forward');
         else if (keys.w) this.el.classList.add('aim-up');
         else if (keys.s && !this.grounded) this.el.classList.add('aim-down');
         else if (!isMoving && !isShooting && this.grounded && !this.crouching) this.el.classList.add('aim-rest');
@@ -228,6 +229,7 @@ class Character extends Entity {
         
         if (this.isPlayer) {
             if (keys.w && (keys.a || keys.d)) { bvy = -8.5; bvx = this.facing * 8.5; }
+            else if (keys.s && !this.grounded && (keys.a || keys.d)) { bvy = 8.5; bvx = this.facing * 8.5; }
             else if (keys.w) { bvy = -12; bvx = 0; }
             else if (keys.s && !this.grounded) { bvy = 12; bvx = 0; }
         }
@@ -260,6 +262,15 @@ class Character extends Entity {
         this.lives--;
         if (this.isPlayer) {
             livesEl.innerText = `LIVES: ${this.lives}`;
+            
+            // Screen shake effect on taking damage
+            document.getElementById('world').classList.add('shake');
+            document.getElementById('background').classList.add('shake');
+            setTimeout(() => {
+                document.getElementById('world').classList.remove('shake');
+                document.getElementById('background').classList.remove('shake');
+            }, 400);
+
             if (this.lives <= 0) {
                 this.dead = true;
                 gameState = 'gameover';
