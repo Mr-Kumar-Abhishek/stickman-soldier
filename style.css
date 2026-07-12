@@ -201,4 +201,57 @@ body {
     50% { opacity: 0.3; }
 }
 
+/* Powerups */
+.powerup {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 1px 1px 0 #000;
+    box-shadow: 0 0 10px currentColor;
+    animation: float 2s infinite ease-in-out;
+    z-index: 5;
+    will-change: transform;
+}
+.powerup.spread {
+    background-color: #ff0055;
+    border: 2px solid #fff;
+    color: #ff0055; 
+}
+.powerup.rapid {
+    background-color: #0088ff;
+    border: 2px solid #fff;
+    color: #0088ff;
+}
+.powerup.spread::after { content: 'S'; color: white;}
+.powerup.rapid::after { content: 'M'; color: white;}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Level Backgrounds */
+body.level-1 #game-container {
+    background: linear-gradient(to bottom, #111a2f 0%, #172442 50%, #1f2f55 100%);
+}
+body.level-1 .platform {
+    background: repeating-linear-gradient(45deg, #2a3650, #2a3650 15px, #1c2436 15px, #1c2436 30px);
+    border-top: 4px solid #00ffcc;
+}
+
+body.level-2 #game-container {
+    background: linear-gradient(to bottom, #2f111a 0%, #421717 50%, #551f1f 100%);
+}
+body.level-2 .platform {
+    background: repeating-linear-gradient(45deg, #502a2a, #502a2a 15px, #361c1c 15px, #361c1c 30px);
+    border-top: 4px solid #ffaa00;
+}
+
 .hidden { display: none !important; }
