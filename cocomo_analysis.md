@@ -42,12 +42,12 @@ Based on the current source code (HTML, CSS, JavaScript, and Markdown configurat
 - **P ≈ 0.9 Developers** (Effectively 1 Full-Time Developer)
 
 ## Cost Analysis
-Assuming an average developer salary/cost of **$5,000 per month**:
+Assuming an average developer salary/cost of **$5,000 USD per month**:
 - **Total Estimated Cost:** `E * Cost per Month`
-- `Total Cost = 3.67 * $5,000`
-- **Total Cost ≈ $18,350**
+- `Total Cost = 3.67 * $5,000 USD`
+- **Total Cost ≈ $18,350 USD**
 
 ## Summary
-According to the Basic COCOMO model, building a project of this scope from scratch with a single developer would typically take about **4.1 months**, requiring **3.67 person-months** of effort, with an estimated total development cost of **$18,350**. 
+According to the Basic COCOMO model, building a project of this scope from scratch with a single developer would typically take about **4.1 months**, requiring **3.67 person-months** of effort, with an estimated total development cost of **$18,350 USD**. 
 
 *(Note: Modern AI-assisted development drastically reduces these traditional estimation timelines.)*
