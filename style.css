@@ -132,43 +132,77 @@ body {
 .leg {
     position: absolute;
     top: 48px;
-    width: 4px; height: 32px;
+    width: 4px; height: 16px;
     background-color: white;
     transform-origin: top center;
+}
+.leg::after {
+    content: '';
+    position: absolute;
+    top: 14px; left: 0;
+    width: 4px; height: 18px;
+    background-color: inherit;
+    box-shadow: inherit;
+    transform-origin: top center;
+    transform: rotate(0deg);
 }
 .leg.left { left: 18px; transform: rotate(20deg); }
 .leg.right { left: 18px; transform: rotate(-20deg); }
 
 /* Animations */
-@keyframes runLeftLeg {
-    0%, 100% { transform: rotate(40deg); }
-    50% { transform: rotate(-50deg); }
+@keyframes runThighLeft {
+    0%   { transform: translateX(-6px) rotate(-45deg); }
+    25%  { transform: translateX(-6px) rotate(0deg); }
+    50%  { transform: translateX(-6px) rotate(45deg); }
+    75%  { transform: translateX(-6px) rotate(-20deg); }
+    100% { transform: translateX(-6px) rotate(-45deg); }
 }
-@keyframes runRightLeg {
-    0%, 100% { transform: rotate(-50deg); }
-    50% { transform: rotate(40deg); }
+@keyframes runThighRight {
+    0%   { transform: translateX(-6px) rotate(45deg); }
+    25%  { transform: translateX(-6px) rotate(-20deg); }
+    50%  { transform: translateX(-6px) rotate(-45deg); }
+    75%  { transform: translateX(-6px) rotate(0deg); }
+    100% { transform: translateX(-6px) rotate(45deg); }
+}
+@keyframes runCalfLeft {
+    0%   { transform: rotate(15deg); }
+    25%  { transform: rotate(10deg); }
+    50%  { transform: rotate(20deg); }
+    75%  { transform: rotate(90deg); }
+    100% { transform: rotate(15deg); }
+}
+@keyframes runCalfRight {
+    0%   { transform: rotate(20deg); }
+    25%  { transform: rotate(90deg); }
+    50%  { transform: rotate(15deg); }
+    75%  { transform: rotate(10deg); }
+    100% { transform: rotate(20deg); }
 }
 @keyframes runBobHead {
-    0%, 100% { top: 0px; }
-    50% { top: 2px; }
+    0%, 100% { top: 0px; left: 14px; }
+    50% { top: 2px; left: 14px; }
 }
 @keyframes runBobTorso {
-    0%, 100% { top: 20px; }
-    50% { top: 22px; }
+    0%, 100% { top: 20px; transform: rotate(15deg); }
+    50% { top: 22px; transform: rotate(15deg); }
 }
 @keyframes runBobArm {
     0%, 100% { top: 22px; }
     50% { top: 24px; }
 }
 
-.running .leg.left { animation: runLeftLeg 0.5s ease-in-out infinite; }
-.running .leg.right { animation: runRightLeg 0.5s ease-in-out infinite; }
-.running .head { animation: runBobHead 0.5s ease-in-out infinite; }
-.running .torso { animation: runBobTorso 0.5s ease-in-out infinite; }
-.running .arm { animation: runBobArm 0.5s ease-in-out infinite; }
+.running .leg.left { animation: runThighLeft 0.5s linear infinite; }
+.running .leg.left::after { animation: runCalfLeft 0.5s linear infinite; }
+.running .leg.right { animation: runThighRight 0.5s linear infinite; }
+.running .leg.right::after { animation: runCalfRight 0.5s linear infinite; }
+.running .head { animation: runBobHead 0.5s linear infinite; }
+.running .torso { animation: runBobTorso 0.5s linear infinite; transform-origin: top center; }
+.running .arm { animation: runBobArm 0.5s linear infinite; }
 
 .jumping .leg.left { transform: rotate(-60deg); }
 .jumping .leg.right { transform: rotate(30deg); }
+.jumping .leg.left::after { transform: rotate(80deg); }
+.jumping .leg.right::after { transform: rotate(90deg); }
 
 /* Aiming states for both arms holding the gun */
 /* Right Arm (Trigger) */
