@@ -141,36 +141,49 @@ body {
 
 /* Animations */
 @keyframes runLeftLeg {
-    0% { transform: rotate(20deg); }
-    50% { transform: rotate(-40deg); }
-    100% { transform: rotate(20deg); }
+    0%, 100% { transform: rotate(40deg); }
+    50% { transform: rotate(-50deg); }
 }
 @keyframes runRightLeg {
-    0% { transform: rotate(-20deg); }
+    0%, 100% { transform: rotate(-50deg); }
     50% { transform: rotate(40deg); }
-    100% { transform: rotate(-20deg); }
 }
-@keyframes runLeftArm {
-    0% { transform: rotate(30deg); }
-    50% { transform: rotate(-30deg); }
-    100% { transform: rotate(30deg); }
+@keyframes runBobHead {
+    0%, 100% { top: 0px; }
+    50% { top: 2px; }
+}
+@keyframes runBobTorso {
+    0%, 100% { top: 20px; }
+    50% { top: 22px; }
+}
+@keyframes runBobArm {
+    0%, 100% { top: 22px; }
+    50% { top: 24px; }
 }
 
-.running .leg.left { animation: runLeftLeg 0.35s linear infinite; }
-.running .leg.right { animation: runRightLeg 0.35s linear infinite; }
-.running .arm.left { animation: runLeftArm 0.35s linear infinite; }
-.running .arm.right { transform: rotate(-80deg); /* Hold gun steady while running */ }
-.running.enemy .arm.right { transform: rotate(-80deg); }
+.running .leg.left { animation: runLeftLeg 0.5s ease-in-out infinite; }
+.running .leg.right { animation: runRightLeg 0.5s ease-in-out infinite; }
+.running .head { animation: runBobHead 0.5s ease-in-out infinite; }
+.running .torso { animation: runBobTorso 0.5s ease-in-out infinite; }
+.running .arm { animation: runBobArm 0.5s ease-in-out infinite; }
 
 .jumping .leg.left { transform: rotate(-60deg); }
 .jumping .leg.right { transform: rotate(30deg); }
 
-/* Aiming states for right arm holding the gun */
+/* Aiming states for both arms holding the gun */
+/* Right Arm (Trigger) */
 .aim-up .arm.right { transform: rotate(180deg); }
 .aim-down .arm.right { transform: rotate(0deg); }
 .aim-forward .arm.right { transform: rotate(-90deg); }
 .aim-up-forward .arm.right { transform: rotate(-135deg); }
 .aim-down-forward .arm.right { transform: rotate(-45deg); }
+
+/* Left Arm (Barrel Support) */
+.aim-up .arm.left { transform: rotate(165deg); z-index: 3;}
+.aim-down .arm.left { transform: rotate(15deg); z-index: 3;}
+.aim-forward .arm.left { transform: rotate(-75deg); z-index: 3;}
+.aim-up-forward .arm.left { transform: rotate(-120deg); z-index: 3;}
+.aim-down-forward .arm.left { transform: rotate(-30deg); z-index: 3;}
 
 .crouching {
     /* JS will handle absolute positioning/scaling, just an animation marker here */
