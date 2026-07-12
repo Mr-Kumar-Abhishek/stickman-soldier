@@ -9,9 +9,10 @@ const GRAVITY = 0.6;
 
 // Key input tracking
 const keys = { w: false, a: false, s: false, d: false, j: false, k: false };
-let gameState = 'playing'; // playing, gameover
+let gameState = 'playing'; // playing, gameover, levelcomplete
 let score = 0;
 let cameraX = 0;
+let currentLevel = 1;
 
 window.addEventListener('keydown', (e) => {
     let key = e.key.toLowerCase();
@@ -23,7 +24,16 @@ window.addEventListener('keydown', (e) => {
     if (key === 'x') key = 'k';
 
     if (keys.hasOwnProperty(key)) keys[key] = true;
-    if (key === 'r' && gameState === 'gameover') restartGame();
+    if (key === 'r') {
+        if (gameState === 'gameover') {
+            currentLevel = 1;
+            score = 0;
+            restartGame();
+        } else if (gameState === 'levelcomplete') {
+            currentLevel++;
+            restartGame();
+        }
+    }
 });
 
 window.addEventListener('keyup', (e) => {
@@ -61,7 +71,7 @@ class Entity {
     }
     update() {}
     render() {
-        if(this.el) this.el.style.transform = `translate(${this.x}px, ${this.y}px)`;
+        if(this.el && !this.dead) this.el.style.transform = `translate(${this.x}px, ${this.y}px)`;
     }
 }
 
@@ -77,13 +87,23 @@ class Platform extends Entity {
     }
 }
 
+class Powerup extends Entity {
+    constructor(x, y, type) {
+        super(x, y, 24, 24);
+        this.type = type; // 'spread' or 'rapid'
+        this.el = document.createElement('div');
+        this.el.className = `powerup ${type}`;
+        world.appendChild(this.el);
+        this.render();
+    }
+}
+
 class Bullet extends Entity {
     constructor(x, y, vx, vy, isPlayer = true) {
         super(x, y, 12, 12);
         this.vx = vx; this.vy = vy; this.isPlayer = isPlayer;
         this.el = document.createElement('div');
         this.el.className = 'bullet';
-        // Add color variance based on owner
         if (!isPlayer) {
             this.el.style.backgroundColor = '#ff0055';
             this.el.style.boxShadow = '0 0 10px #ff0055, 0 0 20px #ff0000';
@@ -106,17 +126,18 @@ class Character extends Entity {
         this.grounded = false;
         this.speed = 4;
         this.jumpForce = -12;
-        this.facing = 1; // 1 right, -1 left
+        this.facing = 1;
         this.cooldown = 0;
         this.lives = isPlayer ? 3 : 1;
         this.crouching = false;
+        this.weapon = 'default';
     }
     
     update(platforms, bullets, enemies) {
         if (this.dead) return;
 
         this.vy += GRAVITY;
-        if (this.vy > 15) this.vy = 15; // terminal velocity
+        if (this.vy > 15) this.vy = 15;
 
         if (this.isPlayer) {
             this.crouching = keys.s && this.grounded;
@@ -131,39 +152,33 @@ class Character extends Entity {
                     this.grounded = false;
                 }
             } else {
-                this.vx = 0; // cannot walk while crouched
+                this.vx = 0;
             }
 
             if (this.cooldown > 0) this.cooldown--;
             if (keys.j && this.cooldown <= 0) {
                 this.shoot(bullets);
-                this.cooldown = 12; // fire rate
+                this.cooldown = this.weapon === 'rapid' ? 5 : 12;
             }
 
-            // CSS classes for animation and aiming
             this.updateClasses();
 
         } else {
-            // Simple enemy logic
             if (this.grounded) {
                 this.vx = -2;
                 this.facing = -1;
                 this.el.className = "stickman enemy running aim-forward";
             }
-            // Shoot occasionally
             if (Math.random() < 0.01) {
                 this.shoot(bullets);
             }
         }
 
-        // Apply velocity
         this.x += this.vx;
         this.y += this.vy;
 
-        // Platform collision
         this.grounded = false;
         for (let p of platforms) {
-            // Landing on top
             if (this.x + 10 < p.x + p.w && this.x + this.w - 10 > p.x &&
                 this.y + this.h - this.vy <= p.y + GRAVITY + 1 && 
                 this.y + this.h >= p.y) {
@@ -176,28 +191,25 @@ class Character extends Entity {
             }
         }
 
-        if (this.y > GAME_HEIGHT) this.takeDamage(); // fell in pit
+        if (this.y > GAME_HEIGHT) this.takeDamage();
     }
 
     updateClasses() {
-        // Reset state classes
         this.el.classList.remove('running', 'jumping', 'crouching', 'aim-up', 'aim-down', 'aim-forward', 'aim-up-forward', 'aim-down-forward');
         
         if (!this.grounded) this.el.classList.add('jumping');
         else if (this.crouching) this.el.classList.add('crouching');
         else if (Math.abs(this.vx) > 0) this.el.classList.add('running');
 
-        // Aiming logic
         if (keys.w && (keys.a || keys.d)) this.el.classList.add('aim-up-forward');
         else if (keys.w) this.el.classList.add('aim-up');
-        else if (keys.s && !this.grounded) this.el.classList.add('aim-down'); // jump shooting down
+        else if (keys.s && !this.grounded) this.el.classList.add('aim-down');
         else this.el.classList.add('aim-forward');
     }
 
     shoot(bullets) {
         let bvx = this.facing * 12;
         let bvy = 0;
-        let aimClass = '';
         
         if (this.isPlayer) {
             if (keys.w && (keys.a || keys.d)) { bvy = -8.5; bvx = this.facing * 8.5; }
@@ -208,12 +220,25 @@ class Character extends Entity {
         let sx = this.x + 20;
         let sy = this.y + 35;
         
-        // Adjust spawn point based on aim
         if (bvx !== 0 && bvy === 0) { sx += this.facing * 20; sy -= 10; }
         if (bvx === 0 && bvy < 0) { sy -= 40; }
         if (this.crouching) { sy += 20; }
         
-        bullets.push(new Bullet(sx, sy, bvx, bvy, this.isPlayer));
+        if (this.isPlayer && this.weapon === 'spread') {
+            bullets.push(new Bullet(sx, sy, bvx, bvy, true));
+            if (bvx !== 0 && bvy === 0) {
+                bullets.push(new Bullet(sx, sy, bvx, -3, true));
+                bullets.push(new Bullet(sx, sy, bvx, 3, true));
+            } else if (bvx === 0 && bvy !== 0) {
+                bullets.push(new Bullet(sx, sy, -3, bvy, true));
+                bullets.push(new Bullet(sx, sy, 3, bvy, true));
+            } else {
+                bullets.push(new Bullet(sx, sy, bvx*1.2, bvy*0.8, true));
+                bullets.push(new Bullet(sx, sy, bvx*0.8, bvy*1.2, true));
+            }
+        } else {
+            bullets.push(new Bullet(sx, sy, bvx, bvy, this.isPlayer));
+        }
     }
 
     takeDamage() {
@@ -223,8 +248,10 @@ class Character extends Entity {
             if (this.lives <= 0) {
                 this.dead = true;
                 gameState = 'gameover';
+                gameOverScreen.innerHTML = '<h1>GAME OVER</h1><p>Press R to Restart</p>';
             } else {
                 this.x = cameraX + 50; this.y = 100; this.vy = 0;
+                this.weapon = 'default';
             }
         } else {
             this.dead = true;
@@ -252,30 +279,65 @@ let player;
 let platforms = [];
 let bullets = [];
 let enemies = [];
+let powerups = [];
 let enemySpawnTimer = 0;
+let levelLength = 5000;
 
-function initMap() {
-    platforms = [
-        new Platform(0, 500, 1400, 100),
-        new Platform(400, 380, 200, 20),
-        new Platform(700, 280, 150, 20),
-        new Platform(1000, 400, 200, 20),
-        new Platform(1500, 500, 1200, 100),
-        new Platform(2800, 500, 1000, 100)
-    ];
+function initLevel(level) {
+    document.body.className = `level-${level}`;
+    platforms = []; bullets = []; enemies = []; powerups = [];
+    cameraX = 0;
+    
+    if (level === 1) {
+        levelLength = 4000;
+        platforms.push(new Platform(0, 500, 1400, 100));
+        platforms.push(new Platform(400, 380, 200, 20));
+        platforms.push(new Platform(700, 280, 150, 20));
+        powerups.push(new Powerup(750, 240, 'spread'));
+        platforms.push(new Platform(1000, 400, 200, 20));
+        platforms.push(new Platform(1500, 500, 1200, 100));
+        powerups.push(new Powerup(1800, 460, 'rapid'));
+        platforms.push(new Platform(2800, 500, 1500, 100));
+        platforms.push(new Platform(3200, 380, 200, 20));
+        platforms.push(new Platform(3600, 300, 300, 20));
+    } else if (level === 2) {
+        levelLength = 5000;
+        platforms.push(new Platform(0, 500, 1000, 100));
+        platforms.push(new Platform(1100, 500, 800, 100));
+        platforms.push(new Platform(1300, 380, 150, 20));
+        powerups.push(new Powerup(1350, 340, 'spread'));
+        platforms.push(new Platform(2000, 500, 600, 100));
+        platforms.push(new Platform(2700, 450, 200, 20));
+        platforms.push(new Platform(3000, 400, 200, 20));
+        powerups.push(new Powerup(3050, 360, 'rapid'));
+        platforms.push(new Platform(3300, 350, 200, 20));
+        platforms.push(new Platform(3600, 500, 1600, 100));
+    } else {
+        levelLength = Infinity;
+        platforms.push(new Platform(0, 500, 2000, 100));
+    }
 }
 
 function restartGame() {
     world.innerHTML = '';
-    platforms = []; bullets = []; enemies = [];
-    score = 0; cameraX = 0;
+    scoreEl.innerText = `SCORE: ${score}`;
     gameState = 'playing';
-    scoreEl.innerText = 'SCORE: 0';
-    livesEl.innerText = 'LIVES: 3';
     gameOverScreen.classList.add('hidden');
     
-    initMap();
-    player = new Character(100, 300, true);
+    initLevel(currentLevel);
+    
+    if (!player || player.lives <= 0) {
+        player = new Character(100, 300, true);
+        livesEl.innerText = `LIVES: ${player.lives}`;
+    } else {
+        player.x = 100;
+        player.y = 300;
+        player.vx = 0;
+        player.vy = 0;
+        player.el = createStickmanHTML(true);
+        player.dead = false;
+        world.appendChild(player.el);
+    }
 }
 
 function update() {
@@ -283,38 +345,44 @@ function update() {
 
     player.update(platforms, bullets, enemies);
     
-    // Camera logic
+    if (player.x > levelLength) {
+        gameState = 'levelcomplete';
+        gameOverScreen.innerHTML = `<h1>LEVEL ${currentLevel} CLEAR</h1><p>Press R to Proceed</p>`;
+        gameOverScreen.classList.remove('hidden');
+        return;
+    }
+
     if (player.x > cameraX + 350) {
         cameraX = player.x - 350;
         world.style.transform = `translateX(${-cameraX}px)`;
         document.getElementById('background').style.backgroundPositionX = `${-cameraX * 0.2}px`;
     }
 
-    // Spawn enemies
-    enemySpawnTimer++;
-    if (enemySpawnTimer > 90) {
-        if (Math.random() > 0.4 && enemies.length < 5) {
-            // Spawn just offscreen right
-            enemies.push(new Character(cameraX + GAME_WIDTH + 100, 400, false));
+    if (levelLength !== Infinity || player.x < levelLength - 800) {
+        enemySpawnTimer++;
+        if (enemySpawnTimer > (currentLevel === 2 ? 70 : 90)) {
+            if (Math.random() > 0.4 && enemies.length < 6) {
+                enemies.push(new Character(cameraX + GAME_WIDTH + 100, 400, false));
+            }
+            enemySpawnTimer = 0;
         }
-        // Infinite terrain generator
+    }
+    
+    if (levelLength === Infinity) {
         if (platforms[platforms.length-1].x < cameraX + GAME_WIDTH + 1500) {
             let lastP = platforms[platforms.length-1];
             let gap = Math.random() * 200 + 100;
             let w = Math.random() * 800 + 400;
             platforms.push(new Platform(lastP.x + lastP.w + gap, 500, w, 100));
-            // Add some mid-air platforms
             if (Math.random() > 0.5) {
                 platforms.push(new Platform(lastP.x + lastP.w + gap + 200, 350, 200, 20));
             }
         }
-        enemySpawnTimer = 0;
     }
 
     bullets.forEach(b => b.update());
     enemies.forEach(e => e.update(platforms, bullets, enemies));
 
-    // Collision checks
     for (let i = bullets.length - 1; i >= 0; i--) {
         let b = bullets[i];
         if (b.dead) continue;
@@ -337,7 +405,6 @@ function update() {
 
     for (let e of enemies) {
         if (!e.dead && !player.dead) {
-            // Simple bounding box for body collision
             if (player.x + 10 < e.x + e.w - 10 && player.x + player.w - 10 > e.x + 10 && 
                 player.y + 10 < e.y + e.h && player.y + player.h > e.y + 10) {
                 player.takeDamage();
@@ -346,10 +413,22 @@ function update() {
         }
     }
 
-    // Garbage collection
+    for (let p of powerups) {
+        if (!p.dead && !player.dead) {
+            if (player.x < p.x + p.w && player.x + player.w > p.x && player.y < p.y + p.h && player.y + player.h > p.y) {
+                player.weapon = p.type;
+                p.dead = true;
+                score += 500;
+                scoreEl.innerText = `SCORE: ${score}`;
+            }
+        }
+    }
+
     bullets.forEach(b => { if(b.dead && b.el) { b.el.remove(); b.el = null; } });
     bullets = bullets.filter(b => !b.dead);
     enemies = enemies.filter(e => !e.dead);
+    powerups.forEach(p => { if(p.dead && p.el) { p.el.remove(); p.el = null; } });
+    powerups = powerups.filter(p => !p.dead);
 }
 
 function render() {
@@ -357,6 +436,7 @@ function render() {
         player.render();
         bullets.forEach(b => b.render());
         enemies.forEach(e => e.render());
+        powerups.forEach(p => p.render());
     } else {
         gameOverScreen.classList.remove('hidden');
     }
