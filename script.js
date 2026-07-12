@@ -131,6 +131,7 @@ class Character extends Entity {
         this.jumpForce = -12;
         this.facing = 1;
         this.cooldown = 0;
+        this.shootTimer = 0;
         this.lives = isPlayer ? 3 : 1;
         this.crouching = false;
         this.weapon = 'default';
@@ -158,10 +159,12 @@ class Character extends Entity {
                 this.vx = 0;
             }
 
+            if (this.shootTimer > 0) this.shootTimer--;
             if (this.cooldown > 0) this.cooldown--;
             if (keys.enter && this.cooldown <= 0) {
                 this.shoot(bullets);
                 this.cooldown = this.weapon === 'rapid' ? 5 : 12;
+                this.shootTimer = 30;
             }
 
             this.updateClasses();
@@ -198,15 +201,19 @@ class Character extends Entity {
     }
 
     updateClasses() {
-        this.el.classList.remove('running', 'jumping', 'crouching', 'aim-up', 'aim-down', 'aim-forward', 'aim-up-forward', 'aim-down-forward');
+        this.el.classList.remove('running', 'jumping', 'crouching', 'aim-up', 'aim-down', 'aim-forward', 'aim-up-forward', 'aim-down-forward', 'aim-rest');
         
+        let isMoving = Math.abs(this.vx) > 0;
+        let isShooting = keys.enter || this.shootTimer > 0;
+
         if (!this.grounded) this.el.classList.add('jumping');
         else if (this.crouching) this.el.classList.add('crouching');
-        else if (Math.abs(this.vx) > 0) this.el.classList.add('running');
+        else if (isMoving) this.el.classList.add('running');
 
         if (keys.w && (keys.a || keys.d)) this.el.classList.add('aim-up-forward');
         else if (keys.w) this.el.classList.add('aim-up');
         else if (keys.s && !this.grounded) this.el.classList.add('aim-down');
+        else if (!isMoving && !isShooting && this.grounded && !this.crouching) this.el.classList.add('aim-rest');
         else this.el.classList.add('aim-forward');
     }
 

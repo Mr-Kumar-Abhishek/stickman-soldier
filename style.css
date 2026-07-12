@@ -206,6 +206,7 @@ body {
 
 /* Aiming states for both arms holding the gun */
 /* Right Arm (Trigger) */
+.aim-rest .arm.right { transform: rotate(-45deg); }
 .aim-up .arm.right { transform: rotate(180deg); }
 .aim-down .arm.right { transform: rotate(0deg); }
 .aim-forward .arm.right { transform: rotate(-90deg); }
@@ -213,6 +214,7 @@ body {
 .aim-down-forward .arm.right { transform: rotate(-45deg); }
 
 /* Left Arm (Barrel Support) */
+.aim-rest .arm.left { transform: rotate(-30deg); z-index: 3;}
 .aim-up .arm.left { transform: rotate(165deg); z-index: 3;}
 .aim-down .arm.left { transform: rotate(15deg); z-index: 3;}
 .aim-forward .arm.left { transform: rotate(-75deg); z-index: 3;}
