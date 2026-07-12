@@ -28,6 +28,7 @@ For detailed insights into the engineering and design of the game, see the inclu
 - **[Game Design Document (GDD)](gdd.md)**
 - **[Software Requirement Specification (SRS)](srs.md)**
 - **[Implementation Plan](implementation_plan.md)**
+- **[COCOMO Cost Analysis](cocomo_analysis.md)**
 
 ## License & Copyright
 **Copyright &copy; 2026 Abhishek Kumar. All Rights Reserved.**
