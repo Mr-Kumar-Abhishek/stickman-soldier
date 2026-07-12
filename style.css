@@ -254,4 +254,56 @@ body.level-2 .platform {
     border-top: 4px solid #ffaa00;
 }
 
+/* Start Screen */
+#start-screen {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(11, 15, 25, 0.95);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 300;
+    color: #fff;
+    backdrop-filter: blur(5px);
+}
+#start-screen h1 {
+    font-size: 3.5rem;
+    color: #00ffcc;
+    text-shadow: 4px 4px 0 #ff0055;
+    margin-bottom: 40px;
+    text-align: center;
+}
+.instructions {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 30px;
+    border: 2px solid #00ffcc;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 255, 204, 0.3);
+    text-align: center;
+}
+.instructions h3 {
+    font-size: 1.5rem;
+    color: #ffea00;
+    margin-bottom: 20px;
+}
+.instructions ul {
+    list-style: none;
+    text-align: left;
+    margin-bottom: 30px;
+}
+.instructions li {
+    font-size: 1rem;
+    margin-bottom: 15px;
+    line-height: 1.4;
+}
+.instructions strong {
+    color: #ff0055;
+}
+.blink {
+    font-size: 1.2rem;
+    color: #00ffcc;
+    animation: pulse 1.5s infinite;
+}
+
 .hidden { display: none !important; }

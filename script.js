@@ -2,6 +2,7 @@ const world = document.getElementById('world');
 const scoreEl = document.getElementById('score');
 const livesEl = document.getElementById('lives');
 const gameOverScreen = document.getElementById('game-over');
+const startScreen = document.getElementById('start-screen');
 
 const GAME_WIDTH = 800;
 const GAME_HEIGHT = 600;
@@ -9,7 +10,7 @@ const GRAVITY = 0.6;
 
 // Key input tracking
 const keys = { w: false, a: false, s: false, d: false, j: false, k: false };
-let gameState = 'playing'; // playing, gameover, levelcomplete
+let gameState = 'menu'; // playing, gameover, levelcomplete, menu
 let score = 0;
 let cameraX = 0;
 let currentLevel = 1;
@@ -24,6 +25,12 @@ window.addEventListener('keydown', (e) => {
     if (key === 'x') key = 'k';
 
     if (keys.hasOwnProperty(key)) keys[key] = true;
+    
+    if (key === 'enter' && gameState === 'menu') {
+        gameState = 'playing';
+        startScreen.classList.add('hidden');
+    }
+
     if (key === 'r') {
         if (gameState === 'gameover') {
             currentLevel = 1;
@@ -321,7 +328,9 @@ function initLevel(level) {
 function restartGame() {
     world.innerHTML = '';
     scoreEl.innerText = `SCORE: ${score}`;
-    gameState = 'playing';
+    if (gameState !== 'menu') {
+        gameState = 'playing';
+    }
     gameOverScreen.classList.add('hidden');
     
     initLevel(currentLevel);
@@ -432,8 +441,8 @@ function update() {
 }
 
 function render() {
-    if (gameState === 'playing') {
-        player.render();
+    if (gameState === 'playing' || gameState === 'menu') {
+        if(player) player.render();
         bullets.forEach(b => b.render());
         enemies.forEach(e => e.render());
         powerups.forEach(p => p.render());
