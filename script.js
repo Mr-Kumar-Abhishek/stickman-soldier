@@ -297,6 +297,8 @@ function initLevel(level) {
     document.body.className = `level-${level}`;
     platforms = []; bullets = []; enemies = []; powerups = [];
     cameraX = 0;
+    world.style.transform = `translateX(0px)`;
+    document.getElementById('background').style.backgroundPositionX = `0px`;
     
     if (level === 1) {
         levelLength = 4000;
@@ -348,7 +350,6 @@ function restartGame() {
         player.vy = 0;
         player.el = createStickmanHTML(true);
         player.dead = false;
-        world.appendChild(player.el);
     }
 }
 
