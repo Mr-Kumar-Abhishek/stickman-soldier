@@ -9,7 +9,7 @@ const GAME_HEIGHT = 600;
 const GRAVITY = 0.6;
 
 // Key input tracking
-const keys = { w: false, a: false, s: false, d: false, j: false, k: false };
+const keys = { w: false, a: false, s: false, d: false, enter: false, shift: false };
 let gameState = 'menu'; // playing, gameover, levelcomplete, menu
 let score = 0;
 let cameraX = 0;
@@ -21,12 +21,10 @@ window.addEventListener('keydown', (e) => {
     if (key === 'arrowdown') key = 's';
     if (key === 'arrowleft') key = 'a';
     if (key === 'arrowright') key = 'd';
-    if (key === 'z') key = 'j';
-    if (key === 'x') key = 'k';
 
     if (keys.hasOwnProperty(key)) keys[key] = true;
     
-    if (key === 'enter' && gameState === 'menu') {
+    if (key === ' ' && gameState === 'menu') {
         gameState = 'playing';
         startScreen.classList.add('hidden');
     }
@@ -49,8 +47,6 @@ window.addEventListener('keyup', (e) => {
     if (key === 'arrowdown') key = 's';
     if (key === 'arrowleft') key = 'a';
     if (key === 'arrowright') key = 'd';
-    if (key === 'z') key = 'j';
-    if (key === 'x') key = 'k';
 
     if (keys.hasOwnProperty(key)) keys[key] = false;
 });
@@ -154,7 +150,7 @@ class Character extends Entity {
                 else if (keys.d) { this.vx = this.speed; this.facing = 1; }
                 else { this.vx = 0; }
                 
-                if (keys.k && this.grounded) {
+                if (keys.shift && this.grounded) {
                     this.vy = this.jumpForce;
                     this.grounded = false;
                 }
@@ -163,7 +159,7 @@ class Character extends Entity {
             }
 
             if (this.cooldown > 0) this.cooldown--;
-            if (keys.j && this.cooldown <= 0) {
+            if (keys.enter && this.cooldown <= 0) {
                 this.shoot(bullets);
                 this.cooldown = this.weapon === 'rapid' ? 5 : 12;
             }
