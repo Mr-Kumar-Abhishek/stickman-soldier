@@ -1,0 +1,46 @@
+name: Deploy to itch.io
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch: # Allows manual deployment from the Actions tab
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create Game Archive
+        run: |
+          # Create a clean directory with only the necessary game files
+          mkdir build
+          cp index.html build/
+          cp style.css build/
+          cp script.js build/
+
+      - name: Download and install Butler
+        run: |
+          # Fetch the latest Linux release of Butler
+          curl -L -o butler.zip https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default
+          unzip butler.zip
+          chmod +x butler
+          ./butler -V
+
+      - name: Push to itch.io
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+          ITCH_USER: ${{ secrets.ITCH_USER }}
+          ITCH_GAME: ${{ secrets.ITCH_GAME }}
+        run: |
+          if [ -z "$BUTLER_API_KEY" ] || [ -z "$ITCH_USER" ] || [ -z "$ITCH_GAME" ]; then
+            echo "Error: Missing required secrets."
+            echo "Please configure BUTLER_API_KEY, ITCH_USER, and ITCH_GAME in your repository's GitHub Secrets."
+            exit 1
+          fi
+          
+          # Deploy the build folder to the html5 channel
+          ./butler push build $ITCH_USER/$ITCH_GAME:html5 --userversion ${{ github.run_number }}
