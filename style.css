@@ -1,0 +1,204 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #0b0f19;
+    color: #fff;
+    font-family: 'Press Start 2P', monospace;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+#game-container {
+    width: 800px;
+    height: 600px;
+    position: relative;
+    background: linear-gradient(to bottom, #111a2f 0%, #172442 50%, #1f2f55 100%);
+    overflow: hidden;
+    box-shadow: 0 0 30px rgba(0, 255, 204, 0.3);
+    border: 4px solid #1f2f55;
+    border-radius: 8px;
+}
+
+#background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    /* Subtle neon grid background */
+    background-image: 
+        linear-gradient(rgba(0, 255, 204, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 204, 0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
+    z-index: 1;
+}
+
+#ui {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    display: flex;
+    justify-content: space-between;
+    z-index: 100;
+    text-shadow: 2px 2px 0px #ff0055;
+    font-size: 1.2rem;
+}
+
+#world {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    transform-origin: 0 0;
+    z-index: 10;
+}
+
+/* CSS Stickman Graphic */
+.stickman {
+    position: absolute;
+    width: 40px;
+    height: 80px;
+    will-change: transform;
+    transform-origin: bottom center;
+}
+
+/* Player Theme (Cyan/Neon) */
+.player .head { border-color: #00ffcc; box-shadow: 0 0 8px #00ffcc; }
+.player .torso, .player .arm, .player .leg { background-color: #00ffcc; box-shadow: 0 0 5px #00ffcc; }
+.player .gun { background-color: #fff; box-shadow: 0 0 5px #fff; }
+
+/* Enemy Theme (Crimson) */
+.enemy .head { border-color: #ff0055; box-shadow: 0 0 8px #ff0055; }
+.enemy .torso, .enemy .arm, .enemy .leg { background-color: #ff0055; box-shadow: 0 0 5px #ff0055; }
+.enemy .gun { background-color: #ffaa00; box-shadow: 0 0 5px #ffaa00; }
+
+/* Stickman Parts */
+.head {
+    position: absolute;
+    top: 0; left: 10px;
+    width: 20px; height: 20px;
+    border: 3px solid white;
+    border-radius: 50%;
+}
+.torso {
+    position: absolute;
+    top: 20px; left: 18px;
+    width: 4px; height: 30px;
+    background-color: white;
+}
+.arm {
+    position: absolute;
+    top: 22px;
+    width: 4px; height: 25px;
+    background-color: white;
+    transform-origin: top center;
+}
+.arm.left { left: 18px; transform: rotate(30deg); }
+.arm.right { left: 18px; transform: rotate(-30deg); z-index: 2; }
+.gun {
+    position: absolute;
+    bottom: -5px; left: -2px;
+    width: 30px; height: 6px;
+    background-color: #aaa;
+    border-radius: 3px;
+    transform-origin: left center;
+}
+.leg {
+    position: absolute;
+    top: 48px;
+    width: 4px; height: 32px;
+    background-color: white;
+    transform-origin: top center;
+}
+.leg.left { left: 18px; transform: rotate(20deg); }
+.leg.right { left: 18px; transform: rotate(-20deg); }
+
+/* Animations */
+@keyframes runLeftLeg {
+    0% { transform: rotate(20deg); }
+    50% { transform: rotate(-40deg); }
+    100% { transform: rotate(20deg); }
+}
+@keyframes runRightLeg {
+    0% { transform: rotate(-20deg); }
+    50% { transform: rotate(40deg); }
+    100% { transform: rotate(-20deg); }
+}
+@keyframes runLeftArm {
+    0% { transform: rotate(30deg); }
+    50% { transform: rotate(-30deg); }
+    100% { transform: rotate(30deg); }
+}
+
+.running .leg.left { animation: runLeftLeg 0.35s linear infinite; }
+.running .leg.right { animation: runRightLeg 0.35s linear infinite; }
+.running .arm.left { animation: runLeftArm 0.35s linear infinite; }
+.running .arm.right { transform: rotate(-80deg); /* Hold gun steady while running */ }
+.running.enemy .arm.right { transform: rotate(-80deg); }
+
+.jumping .leg.left { transform: rotate(-60deg); }
+.jumping .leg.right { transform: rotate(30deg); }
+
+/* Aiming states for right arm holding the gun */
+.aim-up .arm.right { transform: rotate(180deg); }
+.aim-down .arm.right { transform: rotate(0deg); }
+.aim-forward .arm.right { transform: rotate(-90deg); }
+.aim-up-forward .arm.right { transform: rotate(-135deg); }
+.aim-down-forward .arm.right { transform: rotate(-45deg); }
+
+.crouching {
+    /* JS will handle absolute positioning/scaling, just an animation marker here */
+}
+.crouching .leg { transform: rotate(60deg) !important; }
+
+/* Bullet */
+.bullet {
+    position: absolute;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background-color: #ffea00;
+    box-shadow: 0 0 10px #ffea00, 0 0 20px #ff5500;
+    will-change: transform;
+}
+
+/* Platform */
+.platform {
+    position: absolute;
+    background: repeating-linear-gradient(
+        45deg,
+        #2a3650,
+        #2a3650 15px,
+        #1c2436 15px,
+        #1c2436 30px
+    );
+    border-top: 4px solid #00ffcc;
+    box-shadow: inset 0 10px 20px rgba(0,0,0,0.5);
+    border-radius: 4px;
+}
+
+#game-over {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(11, 15, 25, 0.85);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+    text-shadow: 3px 3px 0 #ff0055;
+    color: #fff;
+    backdrop-filter: blur(4px);
+}
+#game-over h1 { font-size: 3rem; margin-bottom: 20px; }
+#game-over p { font-size: 1.2rem; animation: pulse 1.5s infinite; }
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+.hidden { display: none !important; }
