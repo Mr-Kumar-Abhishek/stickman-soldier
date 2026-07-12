@@ -30,9 +30,6 @@ window.addEventListener('keydown', (e) => {
         if (gameState === 'menu') {
             gameState = 'playing';
             startScreen.classList.add('hidden');
-            initLevel(1);
-            player = new Character(100, 300, true);
-            livesEl.innerText = `LIVES: ${player.lives}`;
         }
     }
     
