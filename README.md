@@ -1,5 +1,7 @@
 # Stickman Soldier
 
+> ⚠️ **Note:** This project is currently in active development.
+
 **Stickman Soldier** is a fast-paced, 2D side-scrolling run-and-gun browser game deeply inspired by the classic arcade game *Contra*. The most unique aspect of this project is its visual engine: **it uses absolutely zero image assets.** Every character, weapon, projectile, and environment is crafted dynamically using Pure CSS (`<div>` elements, pseudo-elements, transforms, and gradients).
 
 ## Features
