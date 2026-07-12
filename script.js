@@ -470,3 +470,17 @@ function loop() {
 // Start
 restartGame();
 loop();
+
+// Responsive scaling for different screen sizes and iframes
+function resizeGame() {
+    const container = document.getElementById('game-container');
+    const scale = Math.min(window.innerWidth / GAME_WIDTH, window.innerHeight / GAME_HEIGHT);
+    container.style.transform = `scale(${scale})`;
+}
+window.addEventListener('resize', resizeGame);
+resizeGame();
+
+// Ensure the game window receives keyboard input when clicked (crucial for iframe embeds)
+window.addEventListener('click', () => {
+    window.focus();
+});
