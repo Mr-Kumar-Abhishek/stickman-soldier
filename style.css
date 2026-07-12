@@ -102,11 +102,12 @@ body {
 .arm.right { left: 18px; transform: rotate(-30deg); z-index: 2; }
 .gun {
     position: absolute;
-    bottom: -5px; left: -4px;
+    bottom: 0px; left: -2px;
     width: 28px; height: 6px;
     background-color: #aaa;
     border-radius: 2px;
-    transform-origin: left center;
+    transform-origin: 4px center;
+    transform: rotate(90deg);
 }
 .gun::after {
     /* Grip */
