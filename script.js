@@ -431,6 +431,7 @@ function update() {
 
     bullets.forEach(b => { if(b.dead && b.el) { b.el.remove(); b.el = null; } });
     bullets = bullets.filter(b => !b.dead);
+    enemies.forEach(e => { if(e.dead && e.el) { e.el.remove(); e.el = null; } });
     enemies = enemies.filter(e => !e.dead);
     powerups.forEach(p => { if(p.dead && p.el) { p.el.remove(); p.el = null; } });
     powerups = powerups.filter(p => !p.dead);
