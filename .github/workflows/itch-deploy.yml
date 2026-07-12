@@ -14,13 +14,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Create Game Archive
+      - name: Zip Game Files
         run: |
-          # Create a clean directory with only the necessary game files
-          mkdir build
-          cp index.html build/
-          cp style.css build/
-          cp script.js build/
+          # Zip only the necessary game files (excluding documentation/config)
+          zip -r game.zip index.html style.css script.js
 
       - name: Deploy to itch.io via Butler Action
         uses: josephbmanley/butler-publish-itchio-action@master
@@ -30,5 +27,5 @@ jobs:
           CHANNEL: html5
           ITCH_GAME: ${{ secrets.ITCH_GAME }}
           ITCH_USER: ${{ secrets.ITCH_USER }}
-          PACKAGE: build
+          PACKAGE: game.zip
           VERSION: ${{ github.run_number }}
