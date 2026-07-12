@@ -17,25 +17,33 @@ let currentLevel = 1;
 
 window.addEventListener('keydown', (e) => {
     let key = e.key.toLowerCase();
+    if (e.repeat) return;
+
     if (key === 'arrowup') key = 'w';
     if (key === 'arrowdown') key = 's';
     if (key === 'arrowleft') key = 'a';
     if (key === 'arrowright') key = 'd';
-
-    if (keys.hasOwnProperty(key)) keys[key] = true;
     
-    if (key === ' ' && gameState === 'menu') {
-        gameState = 'playing';
-        startScreen.classList.add('hidden');
+    keys[key] = true;
+    
+    if (key === ' ') {
+        if (gameState === 'menu') {
+            gameState = 'playing';
+            startScreen.classList.add('hidden');
+            initLevel(1);
+            player = new Character(100, 300, true);
+            livesEl.innerText = `LIVES: ${player.lives}`;
+        }
     }
-
+    
     if (key === 'r') {
-        if (gameState === 'gameover') {
+        if (gameState === 'levelcomplete') {
+            currentLevel++;
+            restartGame();
+        } else if (gameState === 'gameover' || gameState === 'playing') {
             currentLevel = 1;
             score = 0;
-            restartGame();
-        } else if (gameState === 'levelcomplete') {
-            currentLevel++;
+            if (player) player.lives = 0; // Force complete recreation
             restartGame();
         }
     }
